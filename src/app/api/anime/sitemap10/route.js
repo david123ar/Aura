@@ -1,7 +1,7 @@
-import { NextResponse } from "next/server"; 
+import { NextResponse } from "next/server";
 
 const apiUrl = "https://vimal.animoon.me/api/az-list?page=";
-const baseUrl = "https://kawaii.netlify.app";
+const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
 
 // Helper function for retrying fetch in case of error
 const retryFetch = async (url, retries = 3, delay = 1000) => {
@@ -48,7 +48,7 @@ const fetchAllUrls = async () => {
   const totalPages = await getTotalPages(); // Dynamically get total number of pages
 
   // Loop through each page one by one
-  for (let page = 200; page <= totalPages ; page++) {
+  for (let page = 200; page <= totalPages; page++) {
     try {
       const pageUrls = await fetchPage(page); // Fetch a single page
       allUrls = allUrls.concat(pageUrls); // Concatenate the URLs from the page

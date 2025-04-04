@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server"; 
 
 const apiUrl = "https://vimal.animoon.me/api/az-list?page=";
-const baseUrl = "https://kawaii.netlify.app";
+const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
 
 // Helper function for retrying fetch in case of error
 const retryFetch = async (url, retries = 3, delay = 1000) => {
