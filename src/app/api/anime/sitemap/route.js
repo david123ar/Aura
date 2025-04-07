@@ -28,7 +28,7 @@ const getTotalPages = async () => {
 };
 
 const fetchAllUrls = async () => {
-  let allUrls = [];
+  const allUrls = [];
   const totalPages = await getTotalPages();
 
   for (let page = 1; page <= totalPages && page <= 20; page++) {
@@ -61,21 +61,19 @@ const escapeXml = (url) => {
 const generateSitemap = (urls) => {
   const lastModifiedDate = new Date().toISOString();
   return `<?xml version="1.0" encoding="UTF-8"?>
-  <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-    ${urls
-      .map((url) => {
-        const escapedUrl = escapeXml(url);
-        return `
-        <url>
-          <loc>${escapedUrl}</loc>
-          <lastmod>${lastModifiedDate}</lastmod>
-          <changefreq>daily</changefreq>
-          <priority>0.8</priority>
-        </url>
-      `;
-      })
-      .join("")}
-  </urlset>`;
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+${urls
+  .map((url) => {
+    const escapedUrl = escapeXml(url);
+    return `<url>
+  <loc>${escapedUrl}</loc>
+  <lastmod>${lastModifiedDate}</lastmod>
+  <changefreq>daily</changefreq>
+  <priority>0.8</priority>
+</url>`;
+  })
+  .join("\n")}
+</urlset>`;
 };
 
 const genreUrls = () => {
@@ -96,12 +94,12 @@ const categoryUrls = () => {
     "top-upcoming", "top-airing", "movie", "special", "ova", "ona", "tv", "completed"
   ];
 
-  return categories.map(
-    (category) =>
-      `${baseUrl}/grid?name=${category}&heading=${category
-        .replace(/-/g, " ")
-        .replace(/\b\w/g, (l) => l.toUpperCase())}`
-  );
+  return categories.map((category) => {
+    const heading = category
+      .replace(/-/g, " ")
+      .replace(/\b\w/g, (l) => l.toUpperCase());
+    return `${baseUrl}/grid?name=${category}&heading=${heading}`;
+  });
 };
 
 export async function GET() {
@@ -112,7 +110,13 @@ export async function GET() {
     const allUrls = [baseUrl, ...urls, ...genreUrlsList, ...categoryUrlsList];
 
     const sitemap = generateSitemap(allUrls);
-    return new NextResponse(sitemap);
+
+    return new NextResponse(sitemap, {
+      status: 200,
+      headers: {
+        "Content-Type": "application/xml",
+      },
+    });
   } catch (error) {
     console.error("Error generating sitemap:", error);
     return new NextResponse("Error generating sitemap", { status: 500 });
